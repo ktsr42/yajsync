@@ -1,11 +1,5 @@
-/.idea/
-/build/
-/doc/
-/misc/
-.classpath
-.project
-.settings/
-target/
+build
+.gradle
 *~
 *.iml
 /yajsync-core/.gradle/

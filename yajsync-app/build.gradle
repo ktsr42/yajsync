@@ -1,8 +1,12 @@
 plugins {
   id 'java'
+  id 'application'
 }
+
+mainClassName='com.github.perlundq.yajsync.ui.Main'
 
 dependencies {
   compile project(':yajsync-core')
   testCompile 'junit:junit:4.12'
 }
+

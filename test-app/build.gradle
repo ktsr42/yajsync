@@ -1,0 +1,12 @@
+plugins {
+  id 'java'
+  id 'application'
+}
+
+mainClassName='com.github.ktsr42.yajsynclib.Main'
+
+dependencies {
+  compile project(':libintf')
+  testCompile 'junit:junit:4.12'
+}
+

@@ -19,3 +19,5 @@ rootProject.name = 'yajsync'
 
 include 'yajsync-app'
 include 'yajsync-core'
+include 'libintf'
+include 'test-app'

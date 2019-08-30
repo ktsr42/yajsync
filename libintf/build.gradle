@@ -1,0 +1,9 @@
+plugins {
+  id 'java-library'
+}
+
+dependencies {
+  compile project(':yajsync-core')
+  compile project(':yajsync-app')
+  testCompile 'junit:junit:4.12'
+}

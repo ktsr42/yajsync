@@ -956,7 +956,7 @@ public final class Sender implements RsyncTask, MessageHandler
                                 expand(fileInfo);
                         isOK = isOK && expandResult.isOK();
                         for (FileInfo f2 : expandResult.value()) {
-                            fileset.add((LocatableFileInfo) f2);
+                            fileset.add(f2);
                         }
                         _curSegmentIndex++;
                     }

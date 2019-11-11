@@ -94,7 +94,7 @@ public final class Text
 
     private static String deleteTrailingChars(String entry, char c)
     {
-        StringBuilder sb = new StringBuilder(entry.toString());
+        StringBuilder sb = new StringBuilder(entry);
         int index = sb.length();
         while (index > 0 && sb.charAt(index - 1) == c) {
             index--;

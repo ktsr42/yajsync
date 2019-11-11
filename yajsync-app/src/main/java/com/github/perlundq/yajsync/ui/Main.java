@@ -23,7 +23,7 @@ import java.util.Arrays;
 
 public class Main
 {
-    public static void main(String args[]) throws IOException,
+    public static void main(String[] args) throws IOException,
                                                   InterruptedException
     {
         String helpText = "the first argument should be either \"client\" or " +

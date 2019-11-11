@@ -7,6 +7,7 @@ package com.github.ktsr42.yajsynclib;
 
 import com.github.perlundq.yajsync.server.module.Module;
 import com.github.perlundq.yajsync.server.module.RestrictedPath;
+
 import java.nio.file.FileSystems;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
@@ -20,8 +21,8 @@ public class RootModule implements Module {
     private String _name;
     private RestrictedPath _path;
     
-    public RootModule() {
-        _name = UUID.randomUUID().toString().substring(0, 6);
+    public RootModule(String name) {
+        _name = name;
         _path = new RestrictedPath(_name, FileSystems.getDefault().getPath("/"));
     }
 

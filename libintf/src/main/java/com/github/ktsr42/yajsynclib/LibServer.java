@@ -10,11 +10,19 @@ import com.github.perlundq.yajsync.net.DuplexByteChannel;
 import com.github.perlundq.yajsync.net.ServerChannel;
 import com.github.perlundq.yajsync.net.ServerChannelFactory;
 import com.github.perlundq.yajsync.net.StandardServerChannelFactory;
+import com.github.perlundq.yajsync.net.StandardSocketChannel;
 import com.github.perlundq.yajsync.server.module.ModuleException;
 import com.github.perlundq.yajsync.server.module.ModuleProvider;
 import com.github.perlundq.yajsync.server.module.Modules;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.StandardSocketOptions;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -38,7 +46,8 @@ import java.util.logging.Logger;
 public class LibServer {
     private static final Logger _log = Logger.getLogger("RsyncServer");
     private static final int THREAD_FACTOR = 4;
-    
+    public static final int SOCKET_BACKLOG = 5;
+
     private CountDownLatch _isListeningLatch;
     private int _numThreads = Runtime.getRuntime().availableProcessors() * THREAD_FACTOR;
     
@@ -46,13 +55,23 @@ public class LibServer {
     private int _verbosity = 1;  // FIXME
     private final RsyncServer.Builder _serverBuilder = new RsyncServer.Builder();
     
-    private int _port = 12345;
-    private InetAddress _address = InetAddress.getLoopbackAddress();
     private int _timeout = 0;
     
-    private String _moduleName = UUID.randomUUID().toString().substring(0, 6);
-    
-    public LibServer() { _moduleProvider = new StdModuleProvider(); }
+    private String _moduleName;
+    private ExecutorService _executor;
+    private RsyncServer _server;
+    private ServerSocketChannel _listenSock;
+
+    public LibServer(String moduleName) {
+        if(moduleName == null) _moduleName = UUID.randomUUID().toString().substring(0, 6);
+        else                   _moduleName = moduleName;
+
+        _moduleProvider = new StdModuleProvider(_moduleName);
+        _executor = Executors.newFixedThreadPool(_numThreads);
+        _server = _serverBuilder.build(_executor);
+    }
+
+    // Notes: start() method takes address  parameter and returns tuple: (module name and local port
 
     private Callable<Boolean> createCallable(final RsyncServer server,
                                              final DuplexByteChannel sock,
@@ -118,10 +137,50 @@ public class LibServer {
         };
     }
 
-    public int start() throws IOException, InterruptedException
+    public Object[] initServer(InetAddress localAddress) throws IOException {
+        Level logLevel = Util.getLogLevelForNumber(Util.WARNING_LOG_LEVEL_NUM + _verbosity);
+        Util.setRootLogLevel(logLevel);
+
+        _listenSock = ServerSocketChannel.open();
+        _listenSock.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+
+        _listenSock.bind(new InetSocketAddress(localAddress,0), SOCKET_BACKLOG);
+
+        if(_isListeningLatch != null) {
+            _isListeningLatch.countDown();
+        }
+
+        InetSocketAddress localaddr = (InetSocketAddress) _listenSock.getLocalAddress();
+
+        return new Object[] {_moduleName, localaddr.getPort() };
+    }
+
+    public void run() throws InterruptedException, IOException {
+        try {
+            while (true) {
+                SocketChannel netSock = _listenSock.accept();                   // throws IOException
+                Callable<Boolean> c = createCallable(_server, new StandardSocketChannel(netSock, _timeout), true);
+                _executor.submit(c);                                             // NOTE: result discarded
+            }
+        } finally {
+            if (_log.isLoggable(Level.INFO)) {
+                _log.info("shutting down...");
+            }
+            _executor.shutdown();
+            _moduleProvider.close();
+            while (!_executor.awaitTermination(5, TimeUnit.MINUTES)) {
+                _log.info("some sessions are still running, waiting for them " +
+                        "to finish before exiting");
+            }
+            if (_log.isLoggable(Level.INFO)) {
+                _log.info("done");
+            }
+        }
+    }
+
+    public int start(InetAddress address) throws IOException, InterruptedException
     {
-        Level logLevel = Util.getLogLevelForNumber(Util.WARNING_LOG_LEVEL_NUM +
-                                                   _verbosity);
+        Level logLevel = Util.getLogLevelForNumber(Util.WARNING_LOG_LEVEL_NUM + _verbosity);
         Util.setRootLogLevel(logLevel);
 
         ServerChannelFactory socketFactory = new StandardServerChannelFactory();
@@ -130,7 +189,7 @@ public class LibServer {
         ExecutorService executor = Executors.newFixedThreadPool(_numThreads);
         RsyncServer server = _serverBuilder.build(executor);
 
-        try (ServerChannel listenSock = socketFactory.open(_address, _port, _timeout)) {  // throws IOException
+        try (ServerChannel listenSock = socketFactory.open(address, 0, _timeout)) {  // throws IOException
             if (_isListeningLatch != null) {
                 _isListeningLatch.countDown();
             }
@@ -154,5 +213,4 @@ public class LibServer {
             }
         }
     }
-    
 }

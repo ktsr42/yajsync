@@ -35,10 +35,8 @@ public class StandardSocketChannel implements DuplexByteChannel
 
     public StandardSocketChannel(SocketChannel socketChannel, int timeout) throws IOException
     {
-        if (timeout > 0) {
-            assert Environment.hasAllocateDirectArray() ||
-            !Environment.isAllocateDirect();
-        }
+        assert timeout <= 0 || Environment.hasAllocateDirectArray() ||
+                !Environment.isAllocateDirect();
         _socketChannel = socketChannel;
         _timeout = timeout;
         _socketChannel.socket().setSoTimeout(timeout);

@@ -203,11 +203,7 @@ public final class Util
 
         String decodeResult =
             decoder.decodeOrNull(ByteBuffer.wrap(encodeResult));
-        if (decodeResult == null || !decodeResult.equals(testString)) {
-            return false;
-        }
-
-        return true;
+        return decodeResult != null && decodeResult.equals(testString);
     }
 
     public static <T> T firstOf(Iterable<T> list)

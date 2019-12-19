@@ -58,17 +58,24 @@ public class LibServer {
     private int _timeout = 0;
     
     private String _moduleName;
+    private int _port = 0;
     private ExecutorService _executor;
     private RsyncServer _server;
     private ServerSocketChannel _listenSock;
 
-    public LibServer(String moduleName) {
+    private void setup(String moduleName) {
         if(moduleName == null) _moduleName = UUID.randomUUID().toString().substring(0, 6);
         else                   _moduleName = moduleName;
 
         _moduleProvider = new StdModuleProvider(_moduleName);
         _executor = Executors.newFixedThreadPool(_numThreads);
         _server = _serverBuilder.build(_executor);
+    }
+    public LibServer(String moduleName) { setup(moduleName); }
+
+    public LibServer(String moduleName, int port) {
+        setup(moduleName);
+        _port = port;
     }
 
     // Notes: start() method takes address  parameter and returns tuple: (module name and local port
@@ -144,7 +151,7 @@ public class LibServer {
         _listenSock = ServerSocketChannel.open();
         _listenSock.setOption(StandardSocketOptions.SO_REUSEADDR, true);
 
-        _listenSock.bind(new InetSocketAddress(localAddress,0), SOCKET_BACKLOG);
+        _listenSock.bind(new InetSocketAddress(localAddress,_port), SOCKET_BACKLOG);
 
         if(_isListeningLatch != null) {
             _isListeningLatch.countDown();
@@ -171,42 +178,6 @@ public class LibServer {
             while (!_executor.awaitTermination(5, TimeUnit.MINUTES)) {
                 _log.info("some sessions are still running, waiting for them " +
                         "to finish before exiting");
-            }
-            if (_log.isLoggable(Level.INFO)) {
-                _log.info("done");
-            }
-        }
-    }
-
-    public int start(InetAddress address) throws IOException, InterruptedException
-    {
-        Level logLevel = Util.getLogLevelForNumber(Util.WARNING_LOG_LEVEL_NUM + _verbosity);
-        Util.setRootLogLevel(logLevel);
-
-        ServerChannelFactory socketFactory = new StandardServerChannelFactory();
-
-        socketFactory.setReuseAddress(true);
-        ExecutorService executor = Executors.newFixedThreadPool(_numThreads);
-        RsyncServer server = _serverBuilder.build(executor);
-
-        try (ServerChannel listenSock = socketFactory.open(address, 0, _timeout)) {  // throws IOException
-            if (_isListeningLatch != null) {
-                _isListeningLatch.countDown();
-            }
-            while (true) {
-                DuplexByteChannel sock = listenSock.accept();                   // throws IOException
-                Callable<Boolean> c = createCallable(server, sock, true);
-                executor.submit(c);                                             // NOTE: result discarded
-            }
-        } finally {
-            if (_log.isLoggable(Level.INFO)) {
-                _log.info("shutting down...");
-            }
-            executor.shutdown();
-            _moduleProvider.close();
-            while (!executor.awaitTermination(5, TimeUnit.MINUTES)) {
-                _log.info("some sessions are still running, waiting for them " +
-                          "to finish before exiting");
             }
             if (_log.isLoggable(Level.INFO)) {
                 _log.info("done");

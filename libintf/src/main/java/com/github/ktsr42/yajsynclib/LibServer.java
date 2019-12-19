@@ -21,6 +21,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.StandardSocketOptions;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Arrays;
@@ -50,18 +52,21 @@ public class LibServer {
 
     private CountDownLatch _isListeningLatch;
     private int _numThreads = Runtime.getRuntime().availableProcessors() * THREAD_FACTOR;
-    
+
     private ModuleProvider _moduleProvider;
     private int _verbosity = 1;  // FIXME
     private final RsyncServer.Builder _serverBuilder = new RsyncServer.Builder();
-    
+
     private int _timeout = 0;
-    
+
     private String _moduleName;
     private int _port = 0;
     private ExecutorService _executor;
     private RsyncServer _server;
     private ServerSocketChannel _listenSock;
+    private Selector socketChannelSelector;
+
+    private boolean run;
 
     private void setup(String moduleName) {
         if(moduleName == null) _moduleName = UUID.randomUUID().toString().substring(0, 6);
@@ -71,12 +76,20 @@ public class LibServer {
         _executor = Executors.newFixedThreadPool(_numThreads);
         _server = _serverBuilder.build(_executor);
     }
-    public LibServer(String moduleName) { setup(moduleName); }
+    public LibServer(String moduleName) {
+        run = true;
+        setup(moduleName);
+    }
 
     public LibServer(String moduleName, int port) {
         setup(moduleName);
         _port = port;
+        run = true;
     }
+
+    public synchronized void stop() { run = false; }
+
+    private synchronized boolean cont() { return run; }
 
     // Notes: start() method takes address  parameter and returns tuple: (module name and local port
 
@@ -150,8 +163,12 @@ public class LibServer {
 
         _listenSock = ServerSocketChannel.open();
         _listenSock.setOption(StandardSocketOptions.SO_REUSEADDR, true);
+        _listenSock.configureBlocking(false);
 
         _listenSock.bind(new InetSocketAddress(localAddress,_port), SOCKET_BACKLOG);
+
+        socketChannelSelector = Selector.open();
+        _listenSock.register(socketChannelSelector, SelectionKey.OP_ACCEPT);
 
         if(_isListeningLatch != null) {
             _isListeningLatch.countDown();
@@ -162,26 +179,48 @@ public class LibServer {
         return new Object[] {_moduleName, localaddr.getPort() };
     }
 
-    public void run() throws InterruptedException, IOException {
-        try {
-            while (true) {
-                SocketChannel netSock = _listenSock.accept();                   // throws IOException
-                Callable<Boolean> c = createCallable(_server, new StandardSocketChannel(netSock, _timeout), true);
-                _executor.submit(c);                                             // NOTE: result discarded
+    private class EventLoopThread extends Thread {
+
+        @Override
+        public void run() {
+            try {
+                while (cont()) {
+                    try {
+                        if (0 == socketChannelSelector.select(500))
+                            continue;  // timeout, check if we are supposed to stop
+
+                        SocketChannel netSock = _listenSock.accept();                   // throws IOException
+                        Callable<Boolean> c = createCallable(_server, new StandardSocketChannel(netSock, _timeout), true);
+                        _executor.submit(c);                                             // NOTE: result discarded
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        break;
+                    }
+                }
+            } finally {
+                if (_log.isLoggable(Level.INFO)) {
+                    _log.info("shutting down...");
+                }
+                _executor.shutdown();
+                _moduleProvider.close();
+                try {
+                    while (!_executor.awaitTermination(5, TimeUnit.MINUTES)) {
+                        _log.info("some sessions are still running, waiting for them " +
+                          "to finish before exiting");
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                if (_log.isLoggable(Level.INFO)) {
+                    _log.info("done");
+                }
             }
-        } finally {
-            if (_log.isLoggable(Level.INFO)) {
-                _log.info("shutting down...");
-            }
-            _executor.shutdown();
-            _moduleProvider.close();
-            while (!_executor.awaitTermination(5, TimeUnit.MINUTES)) {
-                _log.info("some sessions are still running, waiting for them " +
-                        "to finish before exiting");
-            }
-            if (_log.isLoggable(Level.INFO)) {
-                _log.info("done");
-            }
+
         }
+    }
+
+    public void run() throws InterruptedException, IOException {
+        Thread eventLoop = new Thread(new EventLoopThread());
+        eventLoop.start();
     }
 }

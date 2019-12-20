@@ -5,6 +5,12 @@ plugins {
 
 mainClassName='com.github.perlundq.yajsync.ui.Main'
 
+compileJava {
+  options.fork = true
+  sourceCompatibility = '1.8'
+  targetCompatibility = '1.8'
+}
+
 dependencies {
   compile project(':yajsync-core')
   testCompile 'junit:junit:4.12'

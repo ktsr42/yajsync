@@ -219,7 +219,7 @@ public class LibServer {
         }
     }
 
-    public void run() throws InterruptedException, IOException {
+    public void run() {
         Thread eventLoop = new Thread(new EventLoopThread());
         eventLoop.start();
     }

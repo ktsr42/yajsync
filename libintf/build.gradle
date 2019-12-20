@@ -2,6 +2,12 @@ plugins {
   id 'java-library'
 }
 
+compileJava {
+  options.fork = true
+  sourceCompatibility = '1.8'
+  targetCompatibility = '1.8'
+}
+
 dependencies {
   compile project(':yajsync-core')
   compile project(':yajsync-app')

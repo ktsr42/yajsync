@@ -27,6 +27,7 @@ import java.nio.channels.ReadableByteChannel;
 import com.github.perlundq.yajsync.internal.text.Text;
 import com.github.perlundq.yajsync.internal.util.Consts;
 import com.github.perlundq.yajsync.internal.util.Environment;
+import com.github.perlundq.yajsync.internal.util.Flipper;
 import com.github.perlundq.yajsync.internal.util.Util;
 
 public class PrefetchedTaggedInputChannel extends TaggedInputChannel
@@ -155,7 +156,7 @@ public class PrefetchedTaggedInputChannel extends TaggedInputChannel
             assert _readIndex == writeIndex();
             prefetched.compact();
             _readIndex = 0;
-            _buf.position(prefetched.position());
+            Flipper.positionBB(_buf, prefetched.position());
         }
     }
 

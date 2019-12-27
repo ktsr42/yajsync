@@ -42,6 +42,7 @@ import com.github.perlundq.yajsync.internal.util.ArgumentParser;
 import com.github.perlundq.yajsync.internal.util.ArgumentParsingError;
 import com.github.perlundq.yajsync.internal.util.BitOps;
 import com.github.perlundq.yajsync.internal.util.Consts;
+import com.github.perlundq.yajsync.internal.util.Flipper;
 import com.github.perlundq.yajsync.internal.util.MemoryPolicy;
 import com.github.perlundq.yajsync.internal.util.Option;
 import com.github.perlundq.yajsync.internal.util.OverflowException;
@@ -249,7 +250,7 @@ public class ServerSessionConfig extends SessionConfig
         } catch (ChannelEOFException e) {
             // EOF is OK
         }
-        buf.flip();
+        buf = Flipper.flipBB(buf);
         try {
             return _characterDecoder.decode(buf);
         } catch (TextConversionException e) {

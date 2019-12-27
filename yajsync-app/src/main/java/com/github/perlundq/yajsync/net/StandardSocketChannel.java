@@ -26,6 +26,7 @@ import java.security.Principal;
 import java.util.Optional;
 
 import com.github.perlundq.yajsync.internal.util.Environment;
+import com.github.perlundq.yajsync.internal.util.Flipper;
 
 public class StandardSocketChannel implements DuplexByteChannel
 {
@@ -83,7 +84,7 @@ public class StandardSocketChannel implements DuplexByteChannel
         int len = dst.remaining();
         int n = _is.read(buf, offset, len);
         if (n != -1) {
-            dst.position(dst.position() + n);
+            Flipper.positionBB(dst, dst.position() + n);
         }
         return n;
     }

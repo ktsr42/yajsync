@@ -18,6 +18,7 @@
  */
 package com.github.perlundq.yajsync.internal.text;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -27,6 +28,7 @@ import java.nio.charset.CodingErrorAction;
 
 import com.github.perlundq.yajsync.internal.util.Consts;
 import com.github.perlundq.yajsync.internal.util.ErrorPolicy;
+import com.github.perlundq.yajsync.internal.util.Flipper;
 import com.github.perlundq.yajsync.internal.util.MemoryPolicy;
 import com.github.perlundq.yajsync.internal.util.OverflowException;
 import com.github.perlundq.yajsync.internal.util.Util;
@@ -118,14 +120,14 @@ public class TextDecoder
             }
 
             if (result.isUnderflow()) {
-                return output.flip().toString();
+                return (Flipper.flipCB(output)).toString();
             }
 
             if (errorPolicy == ErrorPolicy.THROW) {
-                input.limit(input.position() + result.length());
+                Flipper.limitBB(input, input.position() + result.length());
                 throw new TextConversionException(String.format(
                     "failed to decode %d bytes after %s (using %s): %s -> %s",
-                    result.length(), output.flip().toString(),
+                    result.length(), Flipper.flipCB(output).toString(),
                     _decoder.charset(), Text.byteBufferToString(input),
                     result));
             }

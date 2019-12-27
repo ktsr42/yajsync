@@ -40,6 +40,7 @@ import com.github.perlundq.yajsync.internal.channels.MessageHandler;
 import com.github.perlundq.yajsync.internal.channels.RsyncInChannel;
 import com.github.perlundq.yajsync.internal.channels.RsyncOutChannel;
 import com.github.perlundq.yajsync.internal.util.Environment;
+import com.github.perlundq.yajsync.internal.util.Flipper;
 
 class ReadableByteBufferChannel implements ReadableByteChannel
 {
@@ -160,7 +161,7 @@ public class ChannelTest implements MessageHandler
         _out.flush();
         assertTrue(wb.position() > 0);
 
-        wb.flip();
+        wb = Flipper.flipBB(wb);
         ReadableByteChannel r = new ReadableByteBufferChannel(wb);
         RsyncInChannel _in = new RsyncInChannel(r, this);
 
@@ -181,7 +182,7 @@ public class ChannelTest implements MessageHandler
         _out.flush();
         assertTrue(wb.position() > 0);
 
-        wb.flip();
+        wb = Flipper.flipBB(wb);
         ReadableByteChannel r = new ReadableByteBufferChannel(wb);
         RsyncInChannel _in = new RsyncInChannel(r, this);
 
@@ -202,7 +203,7 @@ public class ChannelTest implements MessageHandler
         _out.flush();
         assertTrue(wb.position() > 0);
 
-        wb.flip();
+        wb = Flipper.flipBB(wb);
         ReadableByteChannel r = new ReadableByteBufferChannel(wb);
         RsyncInChannel _in = new RsyncInChannel(r, this);
 
@@ -223,7 +224,7 @@ public class ChannelTest implements MessageHandler
         _out.flush();
         assertTrue(wb.position() > 0);
 
-        wb.flip();
+        wb = Flipper.flipBB(wb);
         ReadableByteChannel r = new ReadableByteBufferChannel(wb);
         RsyncInChannel _in = new RsyncInChannel(r, this);
 
@@ -247,7 +248,7 @@ public class ChannelTest implements MessageHandler
         _out.flush();
         assertTrue(wb.position() > 0);
 
-        wb.flip();
+        wb = Flipper.flipBB(wb);
         ReadableByteChannel r = new ReadableByteBufferChannel(wb);
         RsyncInChannel _in = new RsyncInChannel(r, this);
 
@@ -278,7 +279,7 @@ public class ChannelTest implements MessageHandler
         testMessage.payload().reset();
         _out.flush();
 
-        wb.flip();
+        wb = Flipper.flipBB(wb);
         ReadableByteChannel r = new ReadableByteBufferChannel(wb);
         RsyncInChannel _in = new RsyncInChannel(r, this);
 
@@ -307,7 +308,7 @@ public class ChannelTest implements MessageHandler
         testMessage.payload().reset();
         _out.flush();
 
-        wb.flip();
+        wb = Flipper.flipBB(wb);
         ReadableByteChannel r = new ReadableByteBufferChannel(wb);
         RsyncInChannel _in = new RsyncInChannel(r, this);
 
@@ -352,7 +353,7 @@ public class ChannelTest implements MessageHandler
         }
         _out.flush();
 
-        wb.flip();
+        wb = Flipper.flipBB(wb);
         ReadableByteChannel r = new ReadableByteBufferChannel(wb);
         RsyncInChannel _in = new RsyncInChannel(r, this);
 
@@ -401,7 +402,7 @@ public class ChannelTest implements MessageHandler
         }
         _out.flush();
 
-        wb.flip();
+        wb = Flipper.flipBB(wb);
         ReadableByteChannel r = new ReadableByteBufferChannel(wb);
         RsyncInChannel _in = new RsyncInChannel(r, this);
 

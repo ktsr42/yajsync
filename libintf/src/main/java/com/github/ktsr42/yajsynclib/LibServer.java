@@ -46,10 +46,10 @@ import java.util.logging.Logger;
  * @author klaas
  */
 public class LibServer {
-    private static final Logger _log = Logger.getLogger("RsyncServer");
     private static final int THREAD_FACTOR = 4;
     public static final int SOCKET_BACKLOG = 5;
 
+    private Logger _log = Logger.getLogger("RsyncServer");
     private CountDownLatch _isListeningLatch;
     private int _numThreads = Runtime.getRuntime().availableProcessors() * THREAD_FACTOR;
 
@@ -179,20 +179,26 @@ public class LibServer {
         return new Object[] {_moduleName, localaddr.getPort() };
     }
 
+    public void setLogger(Logger logger) { _log = logger; }
+
     private class EventLoopThread extends Thread {
 
         @Override
         public void run() {
             try {
+                _log.info("LibServer: start of event loop");
                 while (cont()) {
                     try {
                         if (0 == socketChannelSelector.select(500))
                             continue;  // timeout, check if we are supposed to stop
 
+                        _log.info("LibServer: incoming connection");
                         SocketChannel netSock = _listenSock.accept();                   // throws IOException
                         Callable<Boolean> c = createCallable(_server, new StandardSocketChannel(netSock, _timeout), true);
                         _executor.submit(c);                                             // NOTE: result discarded
-                    } catch (IOException e) {
+                        _log.info("LibServer: Submitted connection to executor");
+                    } catch (Exception e) {
+                        _log.info("LibServer: exception from executor submission.");
                         e.printStackTrace();
                         break;
                     }

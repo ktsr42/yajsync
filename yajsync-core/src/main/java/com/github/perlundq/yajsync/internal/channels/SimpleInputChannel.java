@@ -27,6 +27,7 @@ import java.nio.channels.ReadableByteChannel;
 
 import com.github.perlundq.yajsync.internal.util.Consts;
 import com.github.perlundq.yajsync.internal.util.Environment;
+import com.github.perlundq.yajsync.internal.util.Flipper;
 import com.github.perlundq.yajsync.internal.util.RuntimeInterruptException;
 
 public class SimpleInputChannel implements Readable
@@ -60,7 +61,7 @@ public class SimpleInputChannel implements Readable
     {
         _byteBuf.clear();
         get(_byteBuf);
-        _byteBuf.flip();
+        Flipper.flipBB(_byteBuf);
         return _byteBuf.get();
     }
 
@@ -69,7 +70,7 @@ public class SimpleInputChannel implements Readable
     {
         _charBuf.clear();
         get(_charBuf);
-        _charBuf.flip();
+        Flipper.flipBB(_charBuf);
         return _charBuf.getChar();
     }
 
@@ -78,7 +79,7 @@ public class SimpleInputChannel implements Readable
     {
         _intBuf.clear();
         get(_intBuf);
-        _intBuf.flip();
+        Flipper.flipBB(_intBuf);
         return _intBuf.getInt();
     }
 
@@ -87,8 +88,7 @@ public class SimpleInputChannel implements Readable
     {
         ByteBuffer result = ByteBuffer.allocate(numBytes);
         get(result);
-        result.flip();
-        return result;
+        return Flipper.flipBB(result);
     }
 
     @Override

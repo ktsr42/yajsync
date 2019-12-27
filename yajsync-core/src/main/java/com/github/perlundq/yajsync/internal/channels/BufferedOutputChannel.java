@@ -27,6 +27,7 @@ import java.nio.channels.WritableByteChannel;
 
 import com.github.perlundq.yajsync.internal.util.Consts;
 import com.github.perlundq.yajsync.internal.util.Environment;
+import com.github.perlundq.yajsync.internal.util.Flipper;
 import com.github.perlundq.yajsync.internal.util.RuntimeInterruptException;
 import com.github.perlundq.yajsync.internal.util.Util;
 
@@ -75,7 +76,7 @@ public class BufferedOutputChannel implements Bufferable
     public void flush() throws ChannelException
     {
         if (numBytesBuffered() > 0) {
-            _buffer.flip();
+            Flipper.flipBB(_buffer);
             send(_buffer);
             _buffer.clear();
         }
@@ -93,7 +94,7 @@ public class BufferedOutputChannel implements Bufferable
                                               src.position(),
                                               src.position() + l);
                 _buffer.put(slice);
-                src.position(slice.position());
+                Flipper.positionBB(src, slice.position());
             }
         }
     }

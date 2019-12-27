@@ -23,6 +23,7 @@ package com.github.perlundq.yajsync.internal.channels;
 import java.nio.channels.WritableByteChannel;
 
 import com.github.perlundq.yajsync.internal.util.Consts;
+import com.github.perlundq.yajsync.internal.util.Flipper;
 
 public class TaggedOutputChannel extends BufferedOutputChannel
                                  implements Taggable
@@ -73,7 +74,7 @@ public class TaggedOutputChannel extends BufferedOutputChannel
             } else {
                 // reset buffer position
                 assert _buffer.position() == _tag_offset + TAG_SIZE;
-                _buffer.position(_buffer.position() - TAG_SIZE);
+                Flipper.positionBB(_buffer, _buffer.position() - TAG_SIZE);
             }
             super.flush();
             updateTagOffsetAndBufPos(DEFAULT_TAG_OFFSET);
@@ -109,6 +110,6 @@ public class TaggedOutputChannel extends BufferedOutputChannel
     {
         assert position >= 0 && position < _buffer.limit() - TAG_SIZE;
         _tag_offset = position;
-        _buffer.position(_tag_offset + TAG_SIZE);
+        Flipper.positionBB(_buffer, _tag_offset + TAG_SIZE);
     }
 }

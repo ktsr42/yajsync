@@ -70,6 +70,7 @@ import com.github.perlundq.yajsync.internal.text.TextDecoder;
 import com.github.perlundq.yajsync.internal.text.TextEncoder;
 import com.github.perlundq.yajsync.internal.util.Environment;
 import com.github.perlundq.yajsync.internal.util.FileOps;
+import com.github.perlundq.yajsync.internal.util.Flipper;
 import com.github.perlundq.yajsync.internal.util.MD5;
 import com.github.perlundq.yajsync.internal.util.PathOps;
 import com.github.perlundq.yajsync.internal.util.Rolling;
@@ -487,8 +488,7 @@ public final class Sender implements RsyncTask, MessageHandler
     {
         ByteBuffer buf = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN);
         buf.putInt(0);
-        buf.flip();
-        _duplexChannel.put(buf);
+        _duplexChannel.put(Flipper.flipBB(buf));
     }
 
     private void sendUserId(int uid) throws ChannelException
@@ -1651,7 +1651,7 @@ public final class Sender implements RsyncTask, MessageHandler
             } catch (ChannelEOFException ignored) {
                 // ignored
             }
-            buf.flip();
+            buf = Flipper.flipBB(buf);
             throw new RsyncProtocolException(String.format(
                     "Unexpectedly got %d bytes from peer during connection " +
                     "tear down: %s",

@@ -38,6 +38,7 @@ import com.github.perlundq.yajsync.internal.text.TextConversionException;
 import com.github.perlundq.yajsync.internal.text.TextDecoder;
 import com.github.perlundq.yajsync.internal.text.TextEncoder;
 import com.github.perlundq.yajsync.internal.util.Consts;
+import com.github.perlundq.yajsync.internal.util.Flipper;
 import com.github.perlundq.yajsync.internal.util.MemoryPolicy;
 import com.github.perlundq.yajsync.internal.util.OverflowException;
 import com.github.perlundq.yajsync.internal.util.Util;
@@ -128,7 +129,7 @@ public abstract class SessionConfig
             case Text.ASCII_CR:
                 break;
             case Text.ASCII_NEWLINE:
-                buf.flip();
+                buf = Flipper.flipBB(buf);
                 try {
                     result = _characterDecoder.decode(buf);
                 } catch (TextConversionException e) {

@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.regex.Pattern;
 
+import com.github.perlundq.yajsync.internal.util.Flipper;
 import com.github.perlundq.yajsync.internal.util.Util;
 
 public final class Text
@@ -144,8 +145,8 @@ public final class Text
     public static String charBufferToString(CharBuffer buf, int start, int end)
     {
         CharBuffer dup = buf.duplicate();
-        dup.position(start);
-        dup.limit(end);
+        Flipper.positionCB(dup, start);
+        Flipper.limitCB(dup, end);
         return charBufferToString(dup);
     }
 }

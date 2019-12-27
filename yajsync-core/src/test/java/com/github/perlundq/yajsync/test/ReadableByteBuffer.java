@@ -19,6 +19,7 @@ package com.github.perlundq.yajsync.test;
 import java.nio.ByteBuffer;
 
 import com.github.perlundq.yajsync.internal.channels.Readable;
+import com.github.perlundq.yajsync.internal.util.Flipper;
 import com.github.perlundq.yajsync.internal.util.Util;
 
 public class ReadableByteBuffer implements Readable
@@ -62,6 +63,6 @@ public class ReadableByteBuffer implements Readable
     @Override
     public void skip(int numBytes)
     {
-        _buf.position(_buf.position() + numBytes);
+        Flipper.positionBB(_buf, _buf.position() + numBytes);
     }
 }

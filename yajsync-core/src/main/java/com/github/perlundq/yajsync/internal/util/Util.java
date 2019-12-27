@@ -18,6 +18,7 @@
  */
 package com.github.perlundq.yajsync.internal.util;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -80,8 +81,8 @@ public final class Util
         assert src != null;
         assert start <= end;
         ByteBuffer slice = src.duplicate();
-        slice.position(start);
-        slice.limit(end);
+        Flipper.positionBB(slice, start);
+        Flipper.limitBB(slice, end);
         return slice;
     }
 
@@ -100,8 +101,7 @@ public final class Util
         }
 
         CharBuffer result = CharBuffer.allocate(nextSize);
-        src.flip();
-        result.put(src);
+        result.put(Flipper.flipCB(src));
         if (policy == MemoryPolicy.ZERO) {
             src.rewind();
             Util.zeroCharBuffer(src);
@@ -124,8 +124,7 @@ public final class Util
         }
 
         ByteBuffer result = ByteBuffer.allocate(nextSize);
-        src.flip();
-        result.put(src);
+        result.put(Flipper.flipBB(src));
         if (policy == MemoryPolicy.ZERO) {
             src.rewind();
             Util.zeroByteBuffer(src);

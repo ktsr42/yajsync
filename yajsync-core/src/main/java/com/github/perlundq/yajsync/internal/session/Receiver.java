@@ -63,6 +63,7 @@ import com.github.perlundq.yajsync.internal.text.TextConversionException;
 import com.github.perlundq.yajsync.internal.text.TextDecoder;
 import com.github.perlundq.yajsync.internal.util.Environment;
 import com.github.perlundq.yajsync.internal.util.FileOps;
+import com.github.perlundq.yajsync.internal.util.Flipper;
 import com.github.perlundq.yajsync.internal.util.MD5;
 import com.github.perlundq.yajsync.internal.util.PathOps;
 import com.github.perlundq.yajsync.internal.util.RuntimeInterruptException;
@@ -773,7 +774,7 @@ public class Receiver implements RsyncTask, MessageHandler
     {
         ByteBuffer buf = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN);
         buf.putInt(0);
-        buf.flip();
+        buf = Flipper.flipBB(buf);
         _generator.sendBytes(buf);
     }
 
@@ -2101,8 +2102,7 @@ public class Receiver implements RsyncTask, MessageHandler
                 "truncated read from replica (%s), read %d bytes but expected" +
                 " %d more bytes", replica, bytesRead, buf.remaining()));
         }
-        buf.flip();
-        return buf;
+        return Flipper.flipBB(buf);
     }
 
     private static int blockSize(int index, Checksum.Header checksumHeader)
@@ -2148,7 +2148,7 @@ public class Receiver implements RsyncTask, MessageHandler
             } catch (ChannelEOFException ignored) {
                 // ignored
             }
-            buf.flip();
+            buf = Flipper.flipBB(buf);
             throw new RsyncProtocolException(String.format(
                     "Unexpectedly got %d bytes from peer during connection " +
                     "tear down: %s",

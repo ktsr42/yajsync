@@ -4,3 +4,5 @@ build
 *.iml
 /yajsync-core/.gradle/
 /yajsync-app/.gradle/
+local.properties
+.idea

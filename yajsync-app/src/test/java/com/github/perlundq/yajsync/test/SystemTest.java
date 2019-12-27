@@ -1018,7 +1018,7 @@ public class SystemTest
         testTimeoutHelper(sock);
     }
 
-    @Test(expected=SocketTimeoutException.class, timeout=2000)
+    @Test(expected=javax.net.ssl.SSLException.class, timeout=2000)
     public void testTlsReadTimeout() throws Throwable
     {
         final CountDownLatch isListeningLatch = new CountDownLatch(1);

@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 
 import com.github.perlundq.yajsync.RsyncProtocolException;
 import com.github.perlundq.yajsync.internal.text.Text;
+import com.github.perlundq.yajsync.internal.util.Flipper;
 import com.github.perlundq.yajsync.internal.util.Util;
 
 public class TaggedInputChannel extends SimpleInputChannel
@@ -79,7 +80,7 @@ public class TaggedInputChannel extends SimpleInputChannel
                                                                   64));
             _log.finest(Text.byteBufferToString(tmp));
         }
-        dst.position(slice.position());
+        Flipper.positionBB(dst, slice.position());
         _readAmountAvailable -= chunkLength;
     }
 

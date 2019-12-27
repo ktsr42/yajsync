@@ -34,6 +34,7 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
 import com.github.perlundq.yajsync.internal.util.Environment;
+import com.github.perlundq.yajsync.internal.util.Flipper;
 
 public class SSLChannel implements DuplexByteChannel
 {
@@ -87,7 +88,7 @@ public class SSLChannel implements DuplexByteChannel
         int offset = src.arrayOffset() + src.position();
         int len = src.remaining();
         _os.write(buf, offset, len);
-        src.position(src.position() + len);
+        Flipper.positionBB(src, src.position() + len);
         return len;
     }
 
@@ -99,7 +100,7 @@ public class SSLChannel implements DuplexByteChannel
         int len = dst.remaining();
         int n = _is.read(buf, offset, len);
         if (n != -1) {
-            dst.position(dst.position() + n);
+            Flipper.positionBB(dst, dst.position() + n);
         }
         return n;
     }

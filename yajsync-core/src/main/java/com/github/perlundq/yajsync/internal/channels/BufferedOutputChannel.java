@@ -78,7 +78,7 @@ public class BufferedOutputChannel implements Bufferable
         if (numBytesBuffered() > 0) {
             Flipper.flipBB(_buffer);
             send(_buffer);
-            _buffer.clear();
+            Flipper.clearBB(_buffer);
         }
     }
 

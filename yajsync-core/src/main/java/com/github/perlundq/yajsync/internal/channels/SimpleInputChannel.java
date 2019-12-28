@@ -59,7 +59,7 @@ public class SimpleInputChannel implements Readable
     @Override
     public byte getByte() throws ChannelException
     {
-        _byteBuf.clear();
+        Flipper.clearBB(_byteBuf);;
         get(_byteBuf);
         Flipper.flipBB(_byteBuf);
         return _byteBuf.get();
@@ -68,7 +68,7 @@ public class SimpleInputChannel implements Readable
     @Override
     public char getChar() throws ChannelException
     {
-        _charBuf.clear();
+        Flipper.clearBB(_charBuf);
         get(_charBuf);
         Flipper.flipBB(_charBuf);
         return _charBuf.getChar();
@@ -77,7 +77,7 @@ public class SimpleInputChannel implements Readable
     @Override
     public int getInt() throws ChannelException
     {
-        _intBuf.clear();
+        Flipper.clearBB(_intBuf);
         get(_intBuf);
         Flipper.flipBB(_intBuf);
         return _intBuf.getInt();

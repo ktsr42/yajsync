@@ -41,6 +41,14 @@ public final class Flipper {
     return (ByteBuffer)b.limit(end);
   }
 
-  // clear does not seem to be used
+  // clear
+  public static ByteBuffer clearBB(ByteBuffer bb) {
+      Buffer b = (Buffer)bb;
+      return (ByteBuffer)b.clear();
+  }
 
+  public static CharBuffer clearCB(CharBuffer cb) {
+    Buffer b = (Buffer) cb;
+    return (CharBuffer)b.clear();
+  }
 }

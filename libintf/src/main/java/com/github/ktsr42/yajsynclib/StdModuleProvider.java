@@ -21,7 +21,7 @@ import java.util.LinkedList;
 public class StdModuleProvider extends ModuleProvider {
     private RootModule _rootModule;
     
-    public StdModuleProvider(String name) { _rootModule = new RootModule(name); }
+    public StdModuleProvider(String name, String basePath) { _rootModule = new RootModule(name, basePath); }
 
     @Override
     public Collection<Option> options() {

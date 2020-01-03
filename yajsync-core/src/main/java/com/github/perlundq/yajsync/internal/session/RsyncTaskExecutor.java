@@ -31,8 +31,7 @@ import com.github.perlundq.yajsync.internal.channels.ChannelException;
 
 public final class RsyncTaskExecutor
 {
-    private static final Logger _log =
-        Logger.getLogger(RsyncTaskExecutor.class.getName());
+    private static final Logger _log = Logger.getLogger("yajsync");
     private final Executor _executor;
 
     public RsyncTaskExecutor(Executor executor)

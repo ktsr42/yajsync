@@ -45,8 +45,7 @@ import com.github.perlundq.yajsync.internal.util.Util;
 
 public abstract class SessionConfig
 {
-    private static final Logger _log =
-        Logger.getLogger(SessionConfig.class.getName());
+    private static final Logger _log = Logger.getLogger("yajsync");
     private static final ProtocolVersion VERSION = new ProtocolVersion(30, 0);
     private static final Pattern PROTOCOL_VERSION_REGEX =
         Pattern.compile("@RSYNCD: (\\d+)\\.(\\d+)$");

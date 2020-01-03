@@ -222,8 +222,7 @@ public class Receiver implements RsyncTask, MessageHandler
     }
 
     private static final int INPUT_CHANNEL_BUF_SIZE = 8 * 1024;
-    private static final Logger _log =
-        Logger.getLogger(Receiver.class.getName());
+    private static final Logger _log = Logger.getLogger("yajsync");
 
     private final BitSet _transferred = new BitSet();
     private final boolean _isDeferWrite;

@@ -54,8 +54,7 @@ public class Configuration implements Modules
 
     public static class Reader extends ModuleProvider {
 
-        private static final Logger _log =
-            Logger.getLogger(Reader.class.getName());
+        private static final Logger _log = Logger.getLogger("yajsync");
         private static final Pattern keyValuePattern =
             Pattern.compile("^([\\w ]+) *= *(\\S.*)$");
         private static final Pattern modulePattern =

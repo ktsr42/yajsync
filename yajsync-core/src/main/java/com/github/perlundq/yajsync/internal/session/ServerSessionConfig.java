@@ -56,8 +56,7 @@ import com.github.perlundq.yajsync.server.module.RsyncAuthContext;
 
 public class ServerSessionConfig extends SessionConfig
 {
-    private static final Logger _log =
-        Logger.getLogger(ServerSessionConfig.class.getName());
+    private static final Logger _log = Logger.getLogger("yajsync");
     private final List<Path> _sourceFiles = new LinkedList<>();
     private Path _receiverDestination;
     private boolean _isDelete = false;

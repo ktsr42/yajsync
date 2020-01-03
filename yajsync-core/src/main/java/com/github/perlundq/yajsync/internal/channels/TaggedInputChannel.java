@@ -33,8 +33,7 @@ import com.github.perlundq.yajsync.internal.util.Util;
 
 public class TaggedInputChannel extends SimpleInputChannel
 {
-    private static final Logger _log =
-        Logger.getLogger(TaggedInputChannel.class.getName());
+    private static final Logger _log = Logger.getLogger("yajsync");
 
     private final SimpleInputChannel _inputChannel;
     private final MessageHandler _msgHandler;

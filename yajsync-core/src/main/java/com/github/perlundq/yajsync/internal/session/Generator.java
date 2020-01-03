@@ -203,8 +203,7 @@ public class Generator implements RsyncTask
     private static final Checksum.Header ZERO_SUM;
     private static final int MIN_BLOCK_SIZE = 512;
     private static final int OUTPUT_CHANNEL_BUF_SIZE = 8 * 1024;
-    private static final Logger _log =
-        Logger.getLogger(Generator.class.getName());
+    private static final Logger _log = Logger.getLogger("yajsync");
 
     private final BitSet _pruned = new BitSet();
     private final boolean _isAlwaysItemize;

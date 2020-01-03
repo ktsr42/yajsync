@@ -90,8 +90,7 @@ public class YajsyncClient
         }
     }
 
-    private static final Logger _log =
-        Logger.getLogger(YajsyncClient.class.getName());
+    private static final Logger _log = Logger.getLogger("yajsync");
 
     private final AuthProvider _authProvider = new AuthProvider()
     {

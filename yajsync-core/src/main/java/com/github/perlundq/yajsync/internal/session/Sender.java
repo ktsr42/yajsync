@@ -249,8 +249,7 @@ public final class Sender implements RsyncTask, MessageHandler
         }
     }
 
-    private static final Logger _log =
-        Logger.getLogger(Sender.class.getName());
+    private static final Logger _log = Logger.getLogger("yajsync");
     private static final int INPUT_CHANNEL_BUF_SIZE = 8 * 1024;
     private static final int OUTPUT_CHANNEL_BUF_SIZE = 8 * 1024;
     private static final int PARTIAL_FILE_LIST_SIZE = 1024;
@@ -703,9 +702,6 @@ public final class Sender implements RsyncTask, MessageHandler
                     Filelist.Segment removed = fileList.deleteFirstSegment();
                     if (_log.isLoggable(Level.FINE)) {
                         _log.fine("Deleting segment: " + removed);
-//                        if (_log.isLoggable(Level.FINEST)) {
-//                            _log.finest(removed.filesToString());
-//                        }
                     }
                     if (!fileList.isEmpty()) {
                         _duplexChannel.encodeIndex(Filelist.DONE);

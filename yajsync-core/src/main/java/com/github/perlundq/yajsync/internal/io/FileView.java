@@ -36,8 +36,8 @@ import com.github.perlundq.yajsync.internal.util.RuntimeInterruptException;
 
 public class FileView implements AutoCloseable
 {
-    private static final Logger _log =
-        Logger.getLogger(FileView.class.getName());
+    private static final Logger _log = Logger.getLogger("yajsync");
+
     public final static int DEFAULT_BLOCK_SIZE = 8 * 1024;
     private final InputStream _is;
     private final int _windowLength;  // size of sliding window (<= _buf.length)

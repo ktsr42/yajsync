@@ -267,8 +267,7 @@ public class Filelist
     public static final int DONE   = -1;   // done with segment, may be deleted
     public static final int EOF    = -2;   // no more segments in file list
     public static final int OFFSET = -101;
-    public static final Logger _log =
-        Logger.getLogger(Filelist.class.getName());
+    public static final Logger _log = Logger.getLogger("yajsync");
 
     protected final List<Segment> _segments;
     private final boolean _isRecursive;

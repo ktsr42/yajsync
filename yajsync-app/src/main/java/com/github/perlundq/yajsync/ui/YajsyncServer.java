@@ -56,8 +56,7 @@ import com.github.perlundq.yajsync.server.module.Modules;
 
 public final class YajsyncServer
 {
-    private static final Logger _log =
-        Logger.getLogger(YajsyncServer.class.getName());
+    private static final Logger _log = Logger.getLogger("yajsync");
     private static final int THREAD_FACTOR = 4;
     private boolean _isTLS;
     private CountDownLatch _isListeningLatch;

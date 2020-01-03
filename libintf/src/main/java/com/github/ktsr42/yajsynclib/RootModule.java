@@ -21,9 +21,9 @@ public class RootModule implements Module {
     private String _name;
     private RestrictedPath _path;
     
-    public RootModule(String name) {
+    public RootModule(String name, String basePath) {
         _name = name;
-        _path = new RestrictedPath(_name, FileSystems.getDefault().getPath("/"));
+        _path = new RestrictedPath(_name, FileSystems.getDefault().getPath(basePath));
     }
 
     @Override

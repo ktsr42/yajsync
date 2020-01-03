@@ -49,7 +49,7 @@ public class LibServer {
     private static final int THREAD_FACTOR = 4;
     public static final int SOCKET_BACKLOG = 5;
 
-    private Logger _log = Logger.getLogger("RsyncServer");
+    private Logger _log = Logger.getLogger("yajsync");
     private CountDownLatch _isListeningLatch;
     private int _numThreads = Runtime.getRuntime().availableProcessors() * THREAD_FACTOR;
 
@@ -68,21 +68,21 @@ public class LibServer {
 
     private boolean run;
 
-    private void setup(String moduleName) {
+    private void setup(String moduleName, String basePath) {
         if(moduleName == null) _moduleName = UUID.randomUUID().toString().substring(0, 6);
         else                   _moduleName = moduleName;
 
-        _moduleProvider = new StdModuleProvider(_moduleName);
+        _moduleProvider = new StdModuleProvider(_moduleName, basePath);
         _executor = Executors.newFixedThreadPool(_numThreads);
         _server = _serverBuilder.build(_executor);
     }
-    public LibServer(String moduleName) {
+    public LibServer(String moduleName, String basePath) {
         run = true;
-        setup(moduleName);
+        setup(moduleName, basePath);
     }
 
-    public LibServer(String moduleName, int port) {
-        setup(moduleName);
+    public LibServer(String moduleName, String basePath, int port) {
+        setup(moduleName, basePath);
         _port = port;
         run = true;
     }

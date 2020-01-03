@@ -41,8 +41,7 @@ import com.github.perlundq.yajsync.server.module.RsyncAuthContext;
 
 public class ClientSessionConfig extends SessionConfig
 {
-    private static final Logger _log =
-        Logger.getLogger(ClientSessionConfig.class.getName());
+    private static final Logger _log = Logger.getLogger("yajsync");
     private final boolean _isRecursive;
     private final PrintStream _err;
     private final BlockingQueue<Pair<Boolean, String>> _listing =

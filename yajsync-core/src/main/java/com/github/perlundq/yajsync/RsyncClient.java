@@ -970,8 +970,7 @@ public final class RsyncClient
         }
     }
 
-    private static final Logger _log =
-            Logger.getLogger(RsyncClient.class.getName());
+    private static final Logger _log = Logger.getLogger("yajsync");
     private final AuthProvider _authProvider;
     private final boolean _isAlwaysItemize;
     private final boolean _isDeferWrite;

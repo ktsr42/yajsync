@@ -20,6 +20,7 @@
 package com.github.perlundq.yajsync.internal.session;
 
 import java.io.IOException;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
@@ -2057,9 +2058,9 @@ public class Receiver implements RsyncTask, MessageHandler
                                      length - bytesReceived);
             ByteBuffer literalData = _in.get(chunkSize);
             bytesReceived += chunkSize;
-            literalData.mark();
+            ((Buffer)literalData).mark();
             writeToFile(target, literalData);
-            literalData.reset();
+            ((Buffer)literalData).reset();
             md.update(literalData);
         }
     }

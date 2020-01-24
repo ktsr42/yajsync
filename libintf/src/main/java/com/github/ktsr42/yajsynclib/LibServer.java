@@ -26,6 +26,8 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -102,6 +104,7 @@ public class LibServer {
             public Boolean call() {
                 boolean isOK = false;
                 try {
+                    _log.info("callable called");
                     Modules modules;
                     if (sock.peerPrincipal().isPresent()) {
                         if (_log.isLoggable(Level.FINE)) {
@@ -113,6 +116,7 @@ public class LibServer {
                                                         sock.peerAddress(),
                                                         sock.peerPrincipal().get());
                     } else {
+                        _log.info("Anonymous connection from " + sock.peerAddress());
                         if (_log.isLoggable(Level.FINE)) {
                             _log.fine("got anonymous connection from " +
                                       sock.peerAddress());
@@ -121,6 +125,7 @@ public class LibServer {
                                                         sock.peerAddress());
                     }
                     isOK = server.serve(modules, sock, sock, isInterruptible);
+                    _log.info("isOk: " + (isOK ? "ok" : "ERROR"));
                 } catch (ModuleException e) {
                     if (_log.isLoggable(Level.SEVERE)) {
                         _log.severe(String.format(
@@ -152,6 +157,8 @@ public class LibServer {
                 if (_log.isLoggable(Level.FINE)) {
                     _log.fine("Thread exit status: " + (isOK ? "OK" : "ERROR"));
                 }
+
+                _log.info("callable exiting");
                 return isOK;
             }
         };
@@ -165,7 +172,7 @@ public class LibServer {
         _listenSock.setOption(StandardSocketOptions.SO_REUSEADDR, true);
         _listenSock.configureBlocking(false);
 
-        _listenSock.bind(new InetSocketAddress(localAddress,_port), SOCKET_BACKLOG);
+        _listenSock.bind(new InetSocketAddress(_port), SOCKET_BACKLOG);
 
         socketChannelSelector = Selector.open();
         _listenSock.register(socketChannelSelector, SelectionKey.OP_ACCEPT);
@@ -189,18 +196,22 @@ public class LibServer {
                 _log.info("LibServer: start of event loop");
                 while (cont()) {
                     try {
-                        if (0 == socketChannelSelector.select(500))
-                            continue;  // timeout, check if we are supposed to stop
+                        socketChannelSelector.select(500);
 
-                        _log.info("LibServer: incoming connection");
-                        SocketChannel netSock = _listenSock.accept();                   // throws IOException
-                        Callable<Boolean> c = createCallable(_server, new StandardSocketChannel(netSock, _timeout), true);
-                        _executor.submit(c);                                             // NOTE: result discarded
-                        _log.info("LibServer: Submitted connection to executor");
+                        Set<SelectionKey> selectionKeys = socketChannelSelector.selectedKeys();
+                        if( ! selectionKeys.isEmpty() ) {
+
+                            _log.info("LibServer: incoming connection");
+                            SocketChannel netSock = _listenSock.accept();                   // throws IOException
+                            Callable<Boolean> c = createCallable(_server, new StandardSocketChannel(netSock, _timeout), true);
+                            _executor.submit(c);                                             // NOTE: result discarded
+                            _log.info("LibServer: Submitted connection to executor");
+                        }
+                        selectionKeys.clear();
+
                     } catch (Exception e) {
                         _log.info("LibServer: exception from executor submission.");
                         e.printStackTrace();
-                        break;
                     }
                 }
             } finally {
@@ -221,7 +232,6 @@ public class LibServer {
                     _log.info("done");
                 }
             }
-
         }
     }
 

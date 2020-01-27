@@ -9,9 +9,6 @@ import com.github.perlundq.yajsync.server.module.Module;
 import com.github.perlundq.yajsync.server.module.RestrictedPath;
 
 import java.nio.file.FileSystems;
-import java.nio.file.FileSystem;
-import java.nio.file.Path;
-import java.util.UUID;
 
 /**
  *
@@ -33,7 +30,7 @@ public class RootModule implements Module {
 
     @Override
     public String comment() {
-        return "Everything from / down.";
+        return "Everything reachable on this host down.";
     }
 
     @Override

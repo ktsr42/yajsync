@@ -220,14 +220,20 @@ public class LibServer {
                 }
                 _executor.shutdown();
                 _moduleProvider.close();
+
                 try {
+                    _listenSock.close();
+
                     while (!_executor.awaitTermination(5, TimeUnit.MINUTES)) {
                         _log.info("some sessions are still running, waiting for them " +
                           "to finish before exiting");
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                } catch (IOException e){
+                    e.printStackTrace();
                 }
+
                 if (_log.isLoggable(Level.INFO)) {
                     _log.info("done");
                 }

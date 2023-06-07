@@ -2,14 +2,8 @@ package com.github.ktsr42.yajsynclib;
         
 import com.github.perlundq.yajsync.RsyncServer;
 import com.github.perlundq.yajsync.internal.channels.ChannelException;
-import com.github.perlundq.yajsync.internal.util.ArgumentParser;
-import com.github.perlundq.yajsync.internal.util.ArgumentParsingError;
-import com.github.perlundq.yajsync.internal.util.Option;
 import com.github.perlundq.yajsync.internal.util.Util;
 import com.github.perlundq.yajsync.net.DuplexByteChannel;
-import com.github.perlundq.yajsync.net.ServerChannel;
-import com.github.perlundq.yajsync.net.ServerChannelFactory;
-import com.github.perlundq.yajsync.net.StandardServerChannelFactory;
 import com.github.perlundq.yajsync.net.StandardSocketChannel;
 import com.github.perlundq.yajsync.server.module.ModuleException;
 import com.github.perlundq.yajsync.server.module.ModuleProvider;
@@ -17,16 +11,11 @@ import com.github.perlundq.yajsync.server.module.Modules;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketAddress;
 import java.net.StandardSocketOptions;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -68,6 +57,8 @@ public class LibServer {
     private ServerSocketChannel _listenSock;
     private Selector socketChannelSelector;
 
+    private Thread eventLoop;
+
     private boolean run;
 
     private void setup(String moduleName, String basePath) {
@@ -104,7 +95,6 @@ public class LibServer {
             public Boolean call() {
                 boolean isOK = false;
                 try {
-                    _log.info("callable called");
                     Modules modules;
                     if (sock.peerPrincipal().isPresent()) {
                         if (_log.isLoggable(Level.FINE)) {
@@ -125,7 +115,6 @@ public class LibServer {
                                                         sock.peerAddress());
                     }
                     isOK = server.serve(modules, sock, sock, isInterruptible);
-                    _log.info("isOk: " + (isOK ? "ok" : "ERROR"));
                 } catch (ModuleException e) {
                     if (_log.isLoggable(Level.SEVERE)) {
                         _log.severe(String.format(
@@ -158,7 +147,6 @@ public class LibServer {
                     _log.fine("Thread exit status: " + (isOK ? "OK" : "ERROR"));
                 }
 
-                _log.info("callable exiting");
                 return isOK;
             }
         };
@@ -193,24 +181,23 @@ public class LibServer {
         @Override
         public void run() {
             try {
-                _log.info("LibServer: start of event loop");
+                _log.finest("LibServer: start of event loop");
                 while (cont()) {
                     try {
                         socketChannelSelector.select(500);
 
                         Set<SelectionKey> selectionKeys = socketChannelSelector.selectedKeys();
                         if( ! selectionKeys.isEmpty() ) {
-
-                            _log.info("LibServer: incoming connection");
+                            _log.finest("LibServer: incoming connection");
                             SocketChannel netSock = _listenSock.accept();                   // throws IOException
                             Callable<Boolean> c = createCallable(_server, new StandardSocketChannel(netSock, _timeout), true);
+                            _log.finest("LibServer: Submitting connection to executor");
                             _executor.submit(c);                                             // NOTE: result discarded
-                            _log.info("LibServer: Submitted connection to executor");
                         }
                         selectionKeys.clear();
 
                     } catch (Exception e) {
-                        _log.info("LibServer: exception from executor submission.");
+                        _log.log(Level.SEVERE, "LibServer: exception from executor submission.");
                         e.printStackTrace();
                     }
                 }
@@ -242,7 +229,17 @@ public class LibServer {
     }
 
     public void run() {
-        Thread eventLoop = new Thread(new EventLoopThread());
+        eventLoop = new Thread(new EventLoopThread());
         eventLoop.start();
+    }
+
+    // debugging helper
+    public synchronized void block() {
+        // may throw an NPE - this is deliberate
+        try {
+            eventLoop.wait();
+        } catch (InterruptedException iex) {
+            // ignored
+        }
     }
 }

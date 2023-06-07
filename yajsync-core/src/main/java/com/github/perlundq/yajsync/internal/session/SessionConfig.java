@@ -48,7 +48,7 @@ public abstract class SessionConfig
     private static final Logger _log = Logger.getLogger("yajsync");
     private static final ProtocolVersion VERSION = new ProtocolVersion(30, 0);
     private static final Pattern PROTOCOL_VERSION_REGEX =
-        Pattern.compile("@RSYNCD: (\\d+)\\.(\\d+)$");
+        Pattern.compile("@RSYNCD: (\\d+)\\.(\\d+).*");
 
     protected final AutoFlushableDuplexChannel _peerConnection;
     protected SessionStatus _status;

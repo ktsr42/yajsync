@@ -11,6 +11,7 @@ public class Main {
         Object[] params = srv.initServer(InetAddress.getLocalHost());
         System.out.println(String.format("Local port %d, modulename %s", params[1], (String)params[0]));
         srv.run();
+        srv.block();
         System.exit(0);
     }
     

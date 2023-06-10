@@ -9,7 +9,7 @@ compileJava {
 }
 
 dependencies {
-  compile project(':yajsync-core')
-  compile project(':yajsync-app')
-  testCompile 'junit:junit:4.12'
+  implementation project(':yajsync-core')
+  implementation project(':yajsync-app')
+  testImplementation 'junit:junit:4.12'
 }

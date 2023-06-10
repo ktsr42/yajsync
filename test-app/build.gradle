@@ -6,7 +6,7 @@ plugins {
 mainClassName='com.github.ktsr42.yajsynclib.Main'
 
 dependencies {
-  compile project(':libintf')
-  testCompile 'junit:junit:4.12'
+  implementation project(':libintf')
+  testImplementation 'junit:junit:4.12'
 }
 

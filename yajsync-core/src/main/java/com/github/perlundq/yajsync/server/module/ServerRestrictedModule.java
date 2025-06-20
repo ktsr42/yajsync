@@ -4,15 +4,10 @@ import java.util.Objects;
 
 public class ServerRestrictedModule extends RestrictedModule {
     private final Module module;
-    private final String name;
-    private final String comment;
-
     private RsyncSecrets secrets;
 
-    public ServerRestrictedModule(Module module, String name, String comment, RsyncSecrets secrets) {
+    public ServerRestrictedModule(Module module, RsyncSecrets secrets) {
         this.module = module;
-        this.name = name;
-        this.comment = comment;
         this.secrets = secrets;
     }
     @Override
@@ -31,11 +26,11 @@ public class ServerRestrictedModule extends RestrictedModule {
 
     @Override
     public String name() {
-        return name;
+        return module.name();
     }
 
     @Override
     public String comment() {
-        return comment;
+        return module.name();
     }
 }

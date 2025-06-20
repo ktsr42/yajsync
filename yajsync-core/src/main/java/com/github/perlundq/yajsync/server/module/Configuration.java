@@ -175,7 +175,7 @@ public class Configuration implements Modules
                     }
 
                     if(moduleContent.containsKey(MODULE_KEY_AUTH_USERS)) {
-                        result.put(moduleName, new ServerRestrictedModule(m, moduleName, comment, secrets));
+                        result.put(moduleName, new ServerRestrictedModule(m, secrets));
                     } else {
                         result.put(moduleName, m);
                     }

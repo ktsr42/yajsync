@@ -2,6 +2,7 @@ package com.github.perlundq.yajsync.server.module;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -21,34 +22,37 @@ public class RsyncSecrets {
 
     public String getFilename() { return filename; }
 
+    protected void parseFile(BufferedReader reader) throws ModuleException, IOException {
+        boolean atEof = false;
+        while (!atEof) {
+            String rawLine = reader.readLine();
+            if (Objects.isNull(rawLine)) {
+                atEof = true;
+                continue;
+            }
+
+            String line = rawLine.trim();
+            if (line.isEmpty()) continue;   // ignore empty lines
+            char firstChar = line.charAt(0);
+            if (firstChar == '#') continue; // skip comments
+            if (firstChar == '@') {
+                throw new ModuleException("Authentication groups are not supported - secret: " + line);
+            }
+            String[] parts = line.split(":", 2);
+            if (parts.length != 2) {
+                throw new ModuleException("Malformed secrets line (no colon): " + line);
+            }
+            if (parts[0].length() == 0 || parts[1].length() == 0) {
+                throw new ModuleException("Malformed secrets line (empty username or password:" + line);
+            }
+            passwords.put(parts[0], parts[1]);
+        }
+    }
+
     public void parseFile() throws ModuleException {
         try {
             BufferedReader reader = Files.newBufferedReader(Paths.get(filename), Charset.defaultCharset());
-
-            boolean atEof = false;
-            while (!atEof) {
-                String rawLine = reader.readLine();
-                if (Objects.isNull(rawLine)) {
-                    atEof = true;
-                    continue;
-                }
-
-                String line = rawLine.trim();
-                if (line.isEmpty()) continue;   // ignore empty lines
-                char firstChar = line.charAt(0);
-                if (firstChar == '#') continue; // skip comments
-                if (firstChar == '@') {
-                    throw new ModuleException("Authentication groups are not supported - secret: " + line);
-                }
-                String[] parts = line.split(":", 2);
-                if (parts.length != 2) {
-                    throw new ModuleException("Malformed secrets line (no colon): " + line);
-                }
-                if (parts[0].length() == 0 || parts[1].length() == 0) {
-                    throw new ModuleException("Malformed secrets line (empty username or password:" + line);
-                }
-                passwords.put(parts[0], parts[1]);
-            }
+            parseFile(reader);
         } catch(IOException iox) {
             throw new ModuleException(iox);
         }

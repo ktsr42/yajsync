@@ -52,6 +52,7 @@ public class LibServer {
 
     private String _moduleName;
     private int _port = 0;
+    private String _password;
     private ExecutorService _executor;
     private RsyncServer _server;
     private ServerSocketChannel _listenSock;
@@ -61,23 +62,18 @@ public class LibServer {
 
     private boolean run;
 
-    private void setup(String moduleName, String basePath) {
+    public LibServer(String moduleName, String basePath, int port) {this(moduleName, basePath, port, null);}
+
+    public LibServer(String moduleName, String basePath, int port, String password) {
+        run = true;
+        _port = port;
+        _password = password;
         if(moduleName == null) _moduleName = UUID.randomUUID().toString().substring(0, 6);
         else                   _moduleName = moduleName;
 
-        _moduleProvider = new StdModuleProvider(_moduleName, basePath);
+        _moduleProvider = new StdModuleProvider(_moduleName, basePath, _password);
         _executor = Executors.newFixedThreadPool(_numThreads);
         _server = _serverBuilder.build(_executor);
-    }
-    public LibServer(String moduleName, String basePath) {
-        run = true;
-        setup(moduleName, basePath);
-    }
-
-    public LibServer(String moduleName, String basePath, int port) {
-        setup(moduleName, basePath);
-        _port = port;
-        run = true;
     }
 
     public synchronized void stop() { run = false; }

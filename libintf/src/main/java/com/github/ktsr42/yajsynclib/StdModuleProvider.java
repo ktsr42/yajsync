@@ -9,19 +9,27 @@ import com.github.perlundq.yajsync.internal.util.Option;
 import com.github.perlundq.yajsync.server.module.ModuleException;
 import com.github.perlundq.yajsync.server.module.ModuleProvider;
 import com.github.perlundq.yajsync.server.module.Modules;
+import com.github.perlundq.yajsync.server.module.Module;
 import java.net.InetAddress;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Objects;
 
 /**
  *
  * @author klaas
  */
 public class StdModuleProvider extends ModuleProvider {
-    private RootModule _rootModule;
+    private Module _rootModule;
     
-    public StdModuleProvider(String name, String basePath) { _rootModule = new RootModule(name, basePath); }
+    public StdModuleProvider(String name, String basePath, String password) {
+        RootModule rootModule = new RootModule(name, basePath);
+        if(Objects.isNull(password))
+            _rootModule = new RootModule(name, basePath);
+        else
+            _rootModule = new ProtectedModule(rootModule, password);
+    }
 
     @Override
     public Collection<Option> options() {

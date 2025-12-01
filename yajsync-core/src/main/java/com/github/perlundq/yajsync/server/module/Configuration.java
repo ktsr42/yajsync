@@ -66,6 +66,8 @@ public class Configuration implements Modules
         private static final String MODULE_KEY_PATH = "path";
         private static final String MODULE_KEY_IS_READABLE = "is_readable";
         private static final String MODULE_KEY_IS_WRITABLE = "is_writable";
+        private static final String MODULE_KEY_AUTH_USERS = "auth users";
+        private static final String MODULE_KEY_SECRETS = "secrets file";
 
         private String _cfgFileName =
             Environment.getServerConfig(DEFAULT_CONFIGURATION_FILE_NAME);
@@ -157,6 +159,7 @@ public class Configuration implements Modules
                     RestrictedPath vp = new RestrictedPath(moduleName, p);
                     SimpleModule m = new SimpleModule(moduleName, vp);
                     String comment = Text.nullToEmptyStr(moduleContent.get(MODULE_KEY_COMMENT));
+                    RsyncSecrets secrets = null;
                     m._comment = comment;
                     if (moduleContent.containsKey(MODULE_KEY_IS_READABLE)) {
                         boolean isReadable = toBoolean(moduleContent.get(MODULE_KEY_IS_READABLE));
@@ -166,7 +169,16 @@ public class Configuration implements Modules
                         boolean isWritable = toBoolean(moduleContent.get(MODULE_KEY_IS_WRITABLE));
                         m._isWritable = isWritable;
                     }
-                    result.put(moduleName, m);
+                    if(moduleContent.containsKey(MODULE_KEY_SECRETS)) {
+                        secrets = new RsyncSecrets(moduleContent.get(MODULE_KEY_SECRETS));
+                        secrets.parseFile();
+                    }
+
+                    if(moduleContent.containsKey(MODULE_KEY_AUTH_USERS)) {
+                        result.put(moduleName, new ServerRestrictedModule(m, secrets));
+                    } else {
+                        result.put(moduleName, m);
+                    }
                 } catch (InvalidPathException | IllegalValueException |
                          IOException | URISyntaxException e) {
                     if (_log.isLoggable(Level.WARNING)) {
@@ -189,8 +201,8 @@ public class Configuration implements Modules
 
             while (!isEOF) {
                 String line = reader.readLine();
-                isEOF = line == null;
                 if (line == null) {
+                    isEOF = true;
                     line = "";
                 }
 

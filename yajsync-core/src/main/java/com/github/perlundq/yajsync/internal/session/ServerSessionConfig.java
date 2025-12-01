@@ -111,6 +111,8 @@ public class ServerSessionConfig extends SessionConfig
                                                                charset);
         try {
             instance.exchangeProtocolVersion();
+
+            // Insert authentication step here kt 20250609
             String moduleName = instance.receiveModule();
 
             if (moduleName.isEmpty()) {
@@ -123,6 +125,7 @@ public class ServerSessionConfig extends SessionConfig
                 return instance;
             }
 
+            // kt 20250609: Need provide a RestrictedModule
             Module module = modules.get(moduleName);                            // throws ModuleException
             if (module instanceof RestrictedModule) {
                 RestrictedModule restrictedModule = (RestrictedModule) module;
@@ -175,14 +178,12 @@ public class ServerSessionConfig extends SessionConfig
         }
 
         String userName = userResponseTuple[0];
-        String correctResponse = restrictedModule.authenticate(authContext,
-                                                               userName);
+        String correctResponse = restrictedModule.authenticate(authContext, userName);
         String response = userResponseTuple[1];
         if (response.equals(correctResponse)) {
             return restrictedModule.toModule();
         } else {
-            throw new ModuleSecurityException("failed to authenticate " +
-                                              userName);
+            throw new ModuleSecurityException("failed to authenticate " + userName);
         }
     }
 

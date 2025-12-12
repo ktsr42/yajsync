@@ -1033,8 +1033,6 @@ public class Receiver implements RsyncTask, MessageHandler
         boolean isIdentical = tempSize == fileInfo.attrs().size() &&
                               Arrays.equals(md5sum, peerMd5sum);
 
-        //isIdentical = isIdentical && Util.randomChance(0.25);
-
         if (_log.isLoggable(Level.FINE)) {
             if (isIdentical) {
                 _log.fine(String.format("%s data received OK (remote and " +

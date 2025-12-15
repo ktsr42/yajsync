@@ -135,17 +135,17 @@ path = /
 
 Start the server:
 ```
-$ java -Dumask=$(umask) -jar yajsync-app/target/yajsync-app-0.9.0-SNAPSHOT-full.jar server --port=14415 --config=yajsyncd.conf
+$ java -Dumask=$(umask) -cp yajsync-core/build/libs/yajsync-core-0.9.3.jar:yajsync-app/build/libs/yajsync-app-0.9.3.jar com.github.perlundq.yajsync.ui.Main server --port=14415 --config=yajsyncd.conf
 ```
 
 Recursively upload the directory called example to Uploads:
 ```
-java -Dumask=$(umask) -jar yajsync-app/target/yajsync-app-0.9.0-SNAPSHOT-full.jar client --port=14415 -r example localhost::Uploads
+java -Dumask=$(umask) -cp yajsync-core/build/libs/yajsync-core-0.9.3.jar:yajsync-app/build/libs/yajsync-app-0.9.3.jar com.github.perlundq.yajsync.ui.Main client --port=14415 -r example localhost::Uploads
 ```
 
 The same thing using the alternative syntax:
 ```
-java -Dumask=$(umask) -jar yajsync-app/target/yajsync-app-0.9.0-SNAPSHOT-full.jar client -r example rsync://localhost:14415/Uploads
+java -Dumask=$(umask) -cp yajsync-core/build/libs/yajsync-core-0.9.3.jar:yajsync-app/build/libs/yajsync-app-0.9.3.jar com.github.perlundq.yajsync.ui.Main client -r example rsync://localhost:14415/Uploads
 ```
 
 And finally the same thing using the original rsync client:
@@ -188,14 +188,14 @@ Build instructions
 Requirements:
 
 - [git](http://git-scm.com)
-- [Apache Maven](https://maven.apache.org)
-- [OpenJDK 1.8 or later](http://openjdk.java.net/) or [Oracle JDK 8](http://java.oracle.com)
+
+- [OpenJDK 17 or later, 21 recommended](http://openjdk.java.net/) or [Oracle JDK 17](http://java.oracle.com)
 
 Procedure:
 
-    git clone https://github.com/perlundq/yajsync.git
+    git clone https://github.com/ktsr42/yajsync.git
     cd yajsync
-    mvn
+    ./gradlew build
 
 
 Usage
@@ -205,17 +205,17 @@ Show client/server help (-h argument):
 
 (Windows):
 
-    java -jar yajsync-app/target/yajsync-app-0.9.0-SNAPSHOT-full.jar client -h
-    java -jar yajsync-app/target/yajsync-app-0.9.0-SNAPSHOT-full.jar server -h
+    java -cp yajsync-core/build/libs/yajsync-core-0.9.3.jar:yajsync-app/build/libs/yajsync-app-0.9.3.jar com.github.perlundq.yajsync.ui.Main client -h
+    java -cp yajsync-core/build/libs/yajsync-core-0.9.3.jar:yajsync-app/build/libs/yajsync-app-0.9.3.jar com.github.perlundq.yajsync.ui.Main server -h
 
 (Unix/Linux, we must inject necessary umask information as a property,
 assuming Bourne shell compatible syntax)
 
-    java -Dumask=$(umask) -jar yajsync-app/target/yajsync-app-0.9.0-SNAPSHOT-full.jar client -h
-    java -Dumask=$(umask) -jar yajsync-app/target/yajsync-app-0.9.0-SNAPSHOT-full.jar server -h
+    java -Dumask=$(umask) -cp yajsync-core/build/libs/yajsync-core-0.9.3.jar:yajsync-app/build/libs/yajsync-app-0.9.3.jar com.github.perlundq.yajsync.ui.Main client -h
+    java -Dumask=$(umask) -cp yajsync-core/build/libs/yajsync-core-0.9.3.jar:yajsync-app/build/libs/yajsync-app-0.9.3.jar com.github.perlundq.yajsync.ui.Main server -h
 
 Recommended extra options to the jvm (i.e. must be placed before the
--jar <jar-file> argument):
+-jar -cp argument):
 
 Turn on assertions:
 
@@ -253,6 +253,8 @@ License
 Copyright (C) 1996-2011 by Andrew Tridgell, Wayne Davison, and others
 
 Copyright (C) 2013-2016 Per Lundqvist
+
+Copyright (C) 2019-2025 Klaas Teschauer
 
 yajsync is licensed under GNU General Public License version 3 or
 later. See the file LICENSE or http://www.gnu.org/licenses/gpl.txt for

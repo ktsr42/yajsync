@@ -32,9 +32,7 @@ public class StdModuleProvider extends ModuleProvider {
     }
 
     @Override
-    public Collection<Option> options() {
-        return new LinkedList<Option>();
-    }
+    public Collection<Option> options() { return new LinkedList<Option>(); }
 
     @Override
     public void close() {}

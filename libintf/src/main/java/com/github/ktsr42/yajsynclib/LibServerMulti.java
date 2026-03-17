@@ -30,7 +30,7 @@ import java.util.logging.Logger;
  *
  * @author klaas
  */
-public class LibServer {
+public class LibServerMulti {
     private static final int THREAD_FACTOR = 4;
     public static final int SOCKET_BACKLOG = 5;
 
@@ -44,7 +44,6 @@ public class LibServer {
 
     private int _timeout = 0;
 
-    private String _moduleName;
     private int _port = 0;
     private String _password;
     private ExecutorService _executor;
@@ -56,16 +55,17 @@ public class LibServer {
 
     private boolean run;
 
-    public LibServer(String moduleName, String basePath, int port) {this(moduleName, basePath, port, null);}
+    public LibServerMulti(int port, String[] moduleNames, String[] modulePaths) { this(port, moduleNames, modulePaths, null); }
 
-    public LibServer(String moduleName, String basePath, int port, String password) {
+    public LibServerMulti(int port, String[] moduleNames, String[] modulePaths, String password) {
         run = true;
         _port = port;
         _password = password;
-        if(moduleName == null) _moduleName = UUID.randomUUID().toString().substring(0, 6);
-        else                   _moduleName = moduleName;
-
-        _moduleProvider = new StdModuleProvider(_moduleName, basePath, _password);
+        MultiModules mm = new MultiModules();
+        for(int i = 0; i < moduleNames.length; i++ ) {
+            mm.addModule(moduleNames[i], modulePaths[i]);
+        }
+        _moduleProvider = new MultiModuleProvider(mm);
         _executor = Executors.newFixedThreadPool(_numThreads);
         _server = _serverBuilder.build(_executor);
     }
@@ -142,7 +142,7 @@ public class LibServer {
         };
     }
 
-    public Object[] initServer(InetAddress localAddress) throws IOException {
+    public int initServer(InetAddress localAddress) throws IOException {
         Level logLevel = Util.getLogLevelForNumber(Util.WARNING_LOG_LEVEL_NUM + _verbosity);
         Util.setRootLogLevel(logLevel);
 
@@ -161,7 +161,7 @@ public class LibServer {
 
         InetSocketAddress localaddr = (InetSocketAddress) _listenSock.getLocalAddress();
 
-        return new Object[] {_moduleName, localaddr.getPort() };
+        return localaddr.getPort();
     }
 
     public void setLogger(Logger logger) { _log = logger; }

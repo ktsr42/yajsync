@@ -45,7 +45,6 @@ public class LibServerMulti {
     private int _timeout = 0;
 
     private int _port = 0;
-    private String _password;
     private ExecutorService _executor;
     private RsyncServer _server;
     private ServerSocketChannel _listenSock;
@@ -60,8 +59,7 @@ public class LibServerMulti {
     public LibServerMulti(int port, String[] moduleNames, String[] modulePaths, String password) {
         run = true;
         _port = port;
-        _password = password;
-        MultiModules mm = new MultiModules();
+        MultiModules mm = new MultiModules(password);
         for(int i = 0; i < moduleNames.length; i++ ) {
             mm.addModule(moduleNames[i], modulePaths[i]);
         }

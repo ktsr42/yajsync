@@ -9,10 +9,19 @@ import java.util.Map;
 import java.util.Objects;
 
 public class MultiModules implements Modules {
+    private String _password;
     private Map<String, Module> _modules = new HashMap<>();
 
+    public MultiModules(String password) { _password = password; }
+
     public MultiModules addModule(String name, String path) {
-        _modules.put(name, new SimpleModule(name, path));
+        Module m = new SimpleModule(name, path);
+        if(_password == null) {
+            _modules.put(name, m);
+        } else {
+            _modules.put(name, new ProtectedModule(m, _password));
+        }
+
         return this;
     }
 

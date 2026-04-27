@@ -142,7 +142,7 @@ public class LibServer {
         };
     }
 
-    public Object[] initServer(InetAddress localAddress) throws IOException {
+    public Object[] initServer() throws IOException {
         Level logLevel = Util.getLogLevelForNumber(Util.WARNING_LOG_LEVEL_NUM + _verbosity);
         Util.setRootLogLevel(logLevel);
 

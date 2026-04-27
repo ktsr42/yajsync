@@ -140,7 +140,7 @@ public class LibServerMulti {
         };
     }
 
-    public int initServer(InetAddress localAddress) throws IOException {
+    public int initServer() throws IOException {
         Level logLevel = Util.getLogLevelForNumber(Util.WARNING_LOG_LEVEL_NUM + _verbosity);
         Util.setRootLogLevel(logLevel);
 

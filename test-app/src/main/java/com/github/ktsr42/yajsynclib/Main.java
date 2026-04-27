@@ -8,7 +8,7 @@ public class Main {
     public static void main(String[] args) throws IOException, InterruptedException
     {
         LibServer srv = new LibServer(null, "/",12345);
-        Object[] params = srv.initServer(InetAddress.getLocalHost());
+        Object[] params = srv.initServer();
         System.out.println(String.format("Local port %d, modulename %s", params[1], (String)params[0]));
         srv.run();
         srv.block();

@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-Version="0.9.5"
+Version="0.9.6"
 
 RsyncServerApp="/home/klaas/Projects/RsyncServerApp"
 tgtdir="$RsyncServerApp/yajsync-libs-$Version" 

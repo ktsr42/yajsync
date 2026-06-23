@@ -27,6 +27,8 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -99,7 +101,8 @@ public class ServerSessionConfig extends SessionConfig
     public static ServerSessionConfig handshake(Charset charset,
                                                 ReadableByteChannel in,
                                                 WritableByteChannel out,
-                                                Modules modules)
+                                                Modules modules,
+                                                LinkedBlockingQueue<String> eventLogQueue)
         throws ChannelException, RsyncProtocolException, RsyncSecurityException
     {
         assert charset != null;
@@ -125,7 +128,6 @@ public class ServerSessionConfig extends SessionConfig
                 return instance;
             }
 
-            // kt 20250609: Need provide a RestrictedModule
             Module module = modules.get(moduleName);                            // throws ModuleException
             if (module instanceof RestrictedModule) {
                 RestrictedModule restrictedModule = (RestrictedModule) module;
@@ -138,6 +140,9 @@ public class ServerSessionConfig extends SessionConfig
             Collection<String> args = instance.receiveArguments();
             if (_log.isLoggable(Level.FINE)) {
                 _log.fine("parsing arguments: " + args);
+            }
+            if(!Objects.isNull(eventLogQueue)) {
+                eventLogQueue.add("Remote flags: " + String.join(" ", args));
             }
             instance.parseArguments(args);
             instance.sendCompatibilities();

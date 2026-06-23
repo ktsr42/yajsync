@@ -9,20 +9,15 @@ import com.github.perlundq.yajsync.server.module.ModuleException;
 import com.github.perlundq.yajsync.server.module.ModuleProvider;
 import com.github.perlundq.yajsync.server.module.Modules;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.StandardSocketOptions;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,6 +48,8 @@ public class LibServerMulti {
     private Thread eventLoop;
 
     private boolean run;
+
+    private LinkedBlockingQueue<String> connectionEvents = new LinkedBlockingQueue<>();
 
     public LibServerMulti(int port, String[] moduleNames, String[] modulePaths) { this(port, moduleNames, modulePaths, null); }
 
@@ -102,6 +99,7 @@ public class LibServerMulti {
                         modules = _moduleProvider.newAnonymous(
                                                         sock.peerAddress());
                     }
+                    connectionEvents.add("Connection opened from " + sock.peerAddress().getHostAddress());
                     isOK = server.serve(modules, sock, sock, isInterruptible);
                 } catch (ModuleException e) {
                     if (_log.isLoggable(Level.SEVERE)) {
@@ -120,6 +118,7 @@ public class LibServerMulti {
                         _log.log(Level.SEVERE, "", t);
                     }
                 } finally {
+                    connectionEvents.add("Connection dropped by " + sock.peerAddress().getHostAddress());
                     try {
                         sock.close();
                     } catch (IOException e) {
@@ -215,6 +214,20 @@ public class LibServerMulti {
             }
         }
     }
+
+    public String getConnectionEventMsg() {
+        String msg = null;
+        while(Objects.isNull(msg)) {
+            try {
+                msg = connectionEvents.take();
+            } catch (InterruptedException e) {
+                // ignore this, just try again
+            }
+        }
+        return msg;
+    }
+
+
 
     public void run() {
         eventLoop = new Thread(new EventLoopThread());

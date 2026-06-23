@@ -24,6 +24,7 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import com.github.perlundq.yajsync.internal.session.FilterMode;
 import com.github.perlundq.yajsync.internal.session.Generator;
@@ -46,6 +47,7 @@ public class RsyncServer
         private boolean _isDeferWrite;
         private Charset _charset = Charset.forName(Text.UTF8_NAME);
         private ExecutorService _executorService;
+        private LinkedBlockingQueue<String> _logQueue;
 
         public Builder isDeferWrite(boolean isDeferWrite)
         {
@@ -65,6 +67,11 @@ public class RsyncServer
             return this;
         }
 
+        public Builder withLogQueue(LinkedBlockingQueue<String> logQueue) {
+            _logQueue = logQueue;
+            return this;
+        }
+
         public RsyncServer build(ExecutorService executorService)
         {
             assert executorService != null;
@@ -76,12 +83,14 @@ public class RsyncServer
     private final boolean _isDeferWrite;
     private final Charset _charset;
     private final RsyncTaskExecutor _rsyncTaskExecutor;
+    private final LinkedBlockingQueue<String> _eventLogQueue;
 
     private RsyncServer(Builder builder)
     {
         _isDeferWrite = builder._isDeferWrite;
         _charset = builder._charset;
         _rsyncTaskExecutor = new RsyncTaskExecutor(builder._executorService);
+        _eventLogQueue = builder._logQueue;
     }
 
     public boolean serve(Modules modules,
@@ -96,7 +105,8 @@ public class RsyncServer
         ServerSessionConfig cfg = ServerSessionConfig.handshake(_charset,       // throws IllegalArgumentException if _charset is not supported
                                                                 in,
                                                                 out,
-                                                                modules);
+                                                                modules,
+                                                                _eventLogQueue);
         if (cfg.status() == SessionStatus.ERROR) {
             return false;
         } else if (cfg.status() == SessionStatus.EXIT) {

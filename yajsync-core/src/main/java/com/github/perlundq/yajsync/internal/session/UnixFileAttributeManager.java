@@ -284,6 +284,7 @@ public final class UnixFileAttributeManager extends FileAttributeManager
         UserPrincipal principal = getUserPrincipalFrom(user.name());
         if (principal == null) {
             setUserId(path, user.id(), linkOption);
+            return;
         }
         Files.setAttribute(path, "unix:owner", principal, linkOption);
     }
@@ -294,6 +295,7 @@ public final class UnixFileAttributeManager extends FileAttributeManager
         GroupPrincipal principal = getGroupPrincipalFrom(group.name());
         if (principal == null) {
             setGroupId(path, group.id(), linkOption);
+            return;
         }
         Files.setAttribute(path, "unix:group", principal, linkOption);
     }
